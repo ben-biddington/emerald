@@ -25,7 +25,7 @@ namespace Emerald.Cli
 
             if (false == options.DryRun)
             {
-                using var screen = new Screen(new Screen.Options { Headless = options.Headless });
+                using var screen = new Screen(new Screen.Options { Headless = options.Headless, Browser = options.Browser });
 
                 log.Info($"{Environment.NewLine}--------------------------------------{Environment.NewLine}");
 
@@ -81,6 +81,9 @@ namespace Emerald.Cli
 
         [Option('h', "headless")] 
         public bool Headless { get; set; } = false;
+
+        [Option('b', "browser")]
+        public string Browser { get; set; } = "chrome";
 
         [Option('d', "dir", HelpText = "Where to save the screenshots")]
         public string Dir

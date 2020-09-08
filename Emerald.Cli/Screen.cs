@@ -14,18 +14,19 @@ namespace Emerald.Cli
         internal class Options
         {
             public bool Headless { get; set; }
+            public string Browser { get; set; }
         }
 
         public Screen(Options opts)
         {
-            _driver = Drivers.Chrome(opts);
+            _driver = opts.Browser == "chrome" ? Drivers.Chrome(opts) : Drivers.Firefox(opts);
         }
 
         public string Shot(Log log, Uri url, DirectoryInfo targetDirectory)
         {
             Ensure(targetDirectory);
 
-            return Take(_driver, url, targetDirectory, $"{Safe(url.ToString())}-{DateTime.Now.Ticks}.png");
+            return Take(url, targetDirectory, $"{Safe(url.ToString())}-{DateTime.Now.Ticks}.png");
         }
 
         private string Safe(string text)
@@ -40,36 +41,36 @@ namespace Emerald.Cli
             return result;
         }
 
-        private string Take(IWebDriver driver, Uri url, DirectoryInfo targetDirectory, string fileName)
+        private string Take(Uri url, DirectoryInfo targetDirectory, string fileName)
         {
             var path = Path.Combine(targetDirectory.FullName, fileName);
 
-            driver.Manage().Window.Maximize();
+            _driver.Manage().Window.Maximize();
 
-            driver.Navigate().GoToUrl(url);
+            _driver.Navigate().GoToUrl(url);
 
-            driver.ExecuteJavaScript($"window.scrollTo(0,0)");
+            _driver.ExecuteJavaScript($"window.scrollTo(0,0)");
 
-            var pageHeight = Convert.ToInt32(driver.ExecuteJavaScript<long>("return Math.max(document.body.scrollHeight, document.body.offsetHeight);"));
-            var viewPortHeight = Convert.ToInt32(driver.ExecuteJavaScript<long>("return window.innerHeight;"));
-            var viewPortWidth = Convert.ToInt32(driver.ExecuteJavaScript<long>("return window.innerWidth;"));
+            var pageHeight = Convert.ToInt32(_driver.ExecuteJavaScript<long>("return Math.max(document.body.scrollHeight, document.body.offsetHeight);"));
+            var viewPortHeight = Convert.ToInt32(_driver.ExecuteJavaScript<long>("return window.innerHeight;"));
+            var viewPortWidth = Convert.ToInt32(_driver.ExecuteJavaScript<long>("return window.innerWidth;"));
 
             using (var finalImage = new Bitmap(Convert.ToInt32(viewPortWidth), Convert.ToInt32(pageHeight)))
             using (var g = Graphics.FromImage(finalImage))
             {
-                var snap = new Snap(driver, g);
+                var snap = new Snap(_driver, g);
 
                 var location = new Point(0, 0);
 
                 snap.Take(location);
 
-                while (driver.ExecuteJavaScript<bool>("return (window.innerHeight + window.scrollY) < document.body.scrollHeight;"))
+                while (_driver.ExecuteJavaScript<bool>("return (window.innerHeight + window.scrollY) < document.body.scrollHeight;"))
                 {
-                    var scrollingRemaining = Convert.ToInt32(driver.ExecuteJavaScript<long>("return document.body.scrollHeight - (window.innerHeight + window.scrollY)"));
+                    var scrollingRemaining = Convert.ToInt32(_driver.ExecuteJavaScript<long>("return document.body.scrollHeight - (window.innerHeight + window.scrollY)"));
 
                     var howMuchToScrollBy = Math.Min(scrollingRemaining, viewPortHeight);
 
-                    driver.ExecuteJavaScript($"window.scrollBy(0,{howMuchToScrollBy})");
+                    _driver.ExecuteJavaScript($"window.scrollBy(0,{howMuchToScrollBy})");
 
                     location.Offset(0, howMuchToScrollBy);
 
