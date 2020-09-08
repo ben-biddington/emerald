@@ -1,0 +1,16 @@
+**/packages/
+._.DS_Store
+.DS_Store
+**/bin
+**/obj
+*.suo
+.vs/
+*.user
+_tmp/
+
+.idea/
+*.iml
+.teamcity/target/
+*.zip
+*.swp
+screenshots/

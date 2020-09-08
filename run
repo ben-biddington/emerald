@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ "$@" =~ "--build" ]]; then
+    echo "building"
+    dotnet build Emerald.sln
+fi
+
+dotnet run --no-build --project Emerald.Cli/Emerald.Cli.csproj $@
