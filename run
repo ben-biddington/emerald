@@ -3,19 +3,14 @@
 set -e
 
 if [[ "$@" =~ "--container" ]]; then
-
     containerName="emerald"
-
-    if [ ! "$(docker ps -q -f name=$containerName)" ]; then
-        echo "$containerName does not exist"
-    fi
 
     if [[ "$@" =~ "--build" ]]; then
         docker rm --force $containerName > /dev/null
     fi
 
     if [ ! "$(docker ps -q -f name=$containerName)" ]; then
-        echo "building container"
+        echo "Container <$containerName> does not exist, building"
     
         docker build . -t emerald && docker run -dt --name $containerName emerald
     fi
@@ -26,7 +21,7 @@ if [[ "$@" =~ "--container" ]]; then
 
     echo "Running command with args <$args>"
 
-    docker exec emerald sh -c "rm /screenshots/* && dotnet build && bash run $args --dir /screenshots"
+    docker exec emerald sh -c "rm /screenshots/* > /dev/null; dotnet build && bash run $args --dir /screenshots"
 
     echo "copying screenshots"
 
