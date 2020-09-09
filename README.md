@@ -17,7 +17,19 @@ sudo apt-get update && sudo apt-get install -y apt-transport-https && sudo apt-g
 # Usage
 
 ```shell
-$ ./run --build https://www.rnz.co.nz/ --dir ./screenshots --headless
+$ ./run --build https://www.rnz.co.nz/ --dir ./screenshots
+```
+
+Or run in container:
+
+```shell
+$ ./run --container https://www.rnz.co.nz/
+```
+
+Force container (re)build:
+
+```shell
+$ ./run --container --build https://www.rnz.co.nz/
 ```
 
 <p align="center">
