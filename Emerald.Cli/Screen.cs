@@ -9,6 +9,7 @@ namespace Emerald.Cli
 {
     internal class Screen : IDisposable
     {
+        private readonly Log _log;
         private readonly IWebDriver _driver;
 
         internal class Options
@@ -17,12 +18,13 @@ namespace Emerald.Cli
             public string Browser { get; set; }
         }
 
-        public Screen(Options opts)
+        public Screen(Log log, Options opts)
         {
+            _log = log;
             _driver = opts.Browser == "chrome" ? Drivers.Chrome(opts) : Drivers.Firefox(opts);
         }
 
-        public string Shot(Log log, Uri url, DirectoryInfo targetDirectory)
+        public string Shot(Uri url, DirectoryInfo targetDirectory)
         {
             Ensure(targetDirectory);
 
@@ -79,10 +81,43 @@ namespace Emerald.Cli
 
                 g.Flush();
 
-                finalImage.Save(path, ImageFormat.Png);
+                var cropped = ShaveChrome(finalImage);
+
+                cropped.Save(path, ImageFormat.Png);
             }
 
             return path;
+        }
+
+        // https://docs.microsoft.com/en-us/dotnet/desktop/winforms/advanced/cropping-and-scaling-images-in-gdi?view=netframeworkdesktop-4.8
+        private Bitmap ShaveChrome(Bitmap source)
+        {
+            // https://davidwalsh.name/detect-scrollbar-width
+            var scrollBarWidth = Convert.ToInt32(_driver.ExecuteJavaScript<long>(
+                @"return function() {
+                    var scrollDiv = document.createElement('div');
+                    
+                    scrollDiv.setAttribute('style', 'width: 100px;height: 100px;overflow: scroll;position: absolute;top: -9999px;');
+                    
+                    document.body.appendChild(scrollDiv);
+
+                    var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+
+                    document.body.removeChild(scrollDiv);
+
+                    return scrollbarWidth;
+                }()"));
+
+            var cropRectangle = new Rectangle(0, 0, source.Width - scrollBarWidth, source.Height);
+
+            var cropped = new Bitmap(cropRectangle.Width, cropRectangle.Height);
+
+            using (var g = Graphics.FromImage(cropped))
+            {
+                g.DrawImage(source, new Rectangle(0, 0, cropped.Width, cropped.Height), cropRectangle, GraphicsUnit.Pixel);
+            }
+
+            return cropped;
         }
 
         private void Ensure(DirectoryInfo targetDirectory)

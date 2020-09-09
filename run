@@ -19,9 +19,9 @@ if [[ "$@" =~ "--container" ]]; then
     args=( "${args[@]/--container}" ) 
     args=( "${args[@]/--build}" ) 
 
-    echo "Running command with args <$args>"
+    echo "Running command with args <$(echo $args | xargs)>"
 
-    docker exec emerald sh -c "if [ -d /screenshots ]; then rm /screenshots/*; fi"
+    docker exec emerald sh -c "if [ -d /screenshots ]; then rm -r /screenshots; fi"
     docker exec emerald sh -c "dotnet build && bash run $args --dir /screenshots"
 
     echo "copying screenshots"

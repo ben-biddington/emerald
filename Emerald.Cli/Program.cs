@@ -31,14 +31,13 @@ namespace Emerald.Cli
 
             if (false == options.DryRun)
             {
-                using var screen = new Screen(new Screen.Options { Headless = options.Headless, Browser = options.Browser });
+                using var screen = new Screen(log, new Screen.Options { Headless = options.Headless, Browser = options.Browser });
 
                 log.Info($"{Environment.NewLine}--------------------------------------{Environment.NewLine}");
 
                 foreach (var url in options.Url)
                 {
                     var path = screen.Shot(
-                        log,
                         new Uri(url),
                         new DirectoryInfo(options.Dir));
 
