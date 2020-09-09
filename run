@@ -21,7 +21,7 @@ if [[ "$@" =~ "--container" ]]; then
 
     echo "Running command with args <$args>"
 
-    docker exec emerald sh -c "rm /screenshots/* > /dev/null; dotnet build && bash run $args --dir /screenshots"
+    docker exec emerald sh -c "dotnet build && bash run $args --dir /screenshots"
 
     echo "copying screenshots"
 
