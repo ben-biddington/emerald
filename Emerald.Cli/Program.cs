@@ -17,6 +17,12 @@ namespace Emerald.Cli
             
             var options = Parse(args);
 
+            if (false == options.Url.Any())
+            {
+                log.Info("No urls supplied");
+                Environment.Exit(0);
+            }
+
             log.Info($"Screenshotting <{options.Url.Count()}> urls and saving to <{options.Dir}>");
 
             log.Info($"{Environment.NewLine}--------------------------------------{Environment.NewLine}");
@@ -76,16 +82,19 @@ namespace Emerald.Cli
         [Option('b', "build")]
         public bool Build { get; set; }
 
+        [Option('c', "container")]
+        public bool Container { get; set; }
+
         [Option('d', "dry")]
         public bool DryRun { get; set; }
 
         [Option('h', "headless")] 
-        public bool Headless { get; set; } = false;
+        public bool Headless { get; set; } = true;
 
         [Option('b', "browser")]
         public string Browser { get; set; } = "chrome";
 
-        [Option('d', "dir", HelpText = "Where to save the screenshots")]
+        [Option("dir", HelpText = "Where to save the screenshots")]
         public string Dir
         {
             get => _dir;

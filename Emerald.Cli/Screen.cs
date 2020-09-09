@@ -38,7 +38,7 @@ namespace Emerald.Cli
                 result = result.Replace(invalidFilenameCharacter, '-');
             }
 
-            return result;
+            return result.Replace(':', '-');
         }
 
         private string Take(Uri url, DirectoryInfo targetDirectory, string fileName)

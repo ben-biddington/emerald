@@ -1,5 +1,44 @@
 #!/bin/bash
 
+set -e
+
+if [[ "$@" =~ "--container" ]]; then
+
+    containerName="emerald"
+
+    if [ ! "$(docker ps -q -f name=$containerName)" ]; then
+        echo "$containerName does not exist"
+    fi
+
+    if [[ "$@" =~ "--build" ]]; then
+        docker rm --force $containerName > /dev/null
+    fi
+
+    if [ ! "$(docker ps -q -f name=$containerName)" ]; then
+        echo "building container"
+    
+        docker build . -t emerald && docker run -dt --name $containerName emerald
+    fi
+
+    args=$@
+    args=( "${args[@]/--container}" ) 
+    args=( "${args[@]/--build}" ) 
+
+    echo "Running command with args <$args>"
+
+    docker exec emerald sh -c "rm /screenshots/* && dotnet build && bash run $args --dir /screenshots"
+
+    echo "copying screenshots"
+
+    docker cp emerald:screenshots/ .
+
+    echo ""
+
+    ls -lh screenshots/
+
+    exit 0
+fi
+
 if [[ "$@" =~ "--build" ]]; then
     echo "building"
     dotnet build Emerald.sln
