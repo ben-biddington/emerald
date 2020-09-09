@@ -22,6 +22,7 @@ namespace Emerald.Cli
                 it.AddArgument("--no-sandbox");
                 it.AddArgument("--disable-popup-blocking");
                 it.AddArgument("--disable-extensions");
+                it.AddArgument("--disable-dev-shm-usage");
                 it.AddArgument("window-size=1920,1080");
 
                 it.SetLoggingPreference(LogType.Driver, LogLevel.Off);
