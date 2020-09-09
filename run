@@ -6,7 +6,10 @@ if [[ "$@" =~ "--container" ]]; then
     containerName="emerald"
 
     if [[ "$@" =~ "--build" ]]; then
-        docker rm --force $containerName > /dev/null
+        if [[ $(docker ps --all -f name=$containerName | grep -w $containerName | wc -l) -gt 0 ]]; then
+            echo "Removing container <$containerName> because --build was supplied"
+            docker rm --force $containerName > /dev/null
+        fi
     fi
 
     if [ ! "$(docker ps -q -f name=$containerName)" ]; then
