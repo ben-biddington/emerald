@@ -12,7 +12,7 @@ if [[ "$@" =~ "--container" ]]; then
     if [ ! "$(docker ps -q -f name=$containerName)" ]; then
         echo "Container <$containerName> does not exist, building"
     
-        docker build . -t emerald && docker run -dt --name $containerName emerald
+        docker build . -t emerald && docker run -dt --name $containerName --network "host" emerald
     fi
 
     args=$@
