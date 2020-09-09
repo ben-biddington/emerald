@@ -31,21 +31,8 @@ namespace Emerald.Cli
             return Take(url, targetDirectory, $"{Safe(url.ToString())}-{DateTime.Now.Ticks}.png");
         }
 
-        private string Safe(string text)
+        private string Take(Uri url, DirectoryInfo targetDirectory, string defaultFilename)
         {
-            var result = text;
-
-            foreach (var invalidFilenameCharacter in Path.GetInvalidFileNameChars())
-            {
-                result = result.Replace(invalidFilenameCharacter, '-');
-            }
-
-            return result.Replace(':', '-');
-        }
-
-        private string Take(Uri url, DirectoryInfo targetDirectory, string fileName)
-        {
-            var path = Path.Combine(targetDirectory.FullName, fileName);
 
             _driver.Manage().Window.Maximize();
 
@@ -56,6 +43,8 @@ namespace Emerald.Cli
             var pageHeight = Convert.ToInt32(_driver.ExecuteJavaScript<long>("return Math.max(document.body.scrollHeight, document.body.offsetHeight);"));
             var viewPortHeight = Convert.ToInt32(_driver.ExecuteJavaScript<long>("return window.innerHeight;"));
             var viewPortWidth = Convert.ToInt32(_driver.ExecuteJavaScript<long>("return window.innerWidth;"));
+
+            var filename = $"{Safe(_driver.Title.ToLower())}-{DateTime.Now.Ticks}.png";
 
             using (var finalImage = new Bitmap(Convert.ToInt32(viewPortWidth), Convert.ToInt32(pageHeight)))
             using (var g = Graphics.FromImage(finalImage))
@@ -83,10 +72,24 @@ namespace Emerald.Cli
 
                 var cropped = ShaveChrome(finalImage);
 
+                var path = Path.Combine(targetDirectory.FullName, filename);
+                
                 cropped.Save(path, ImageFormat.Png);
+                
+                return path;
+            }
+        }
+
+        private string Safe(string text)
+        {
+            var result = text;
+
+            foreach (var invalidFilenameCharacter in Path.GetInvalidFileNameChars())
+            {
+                result = result.Replace(invalidFilenameCharacter, '-');
             }
 
-            return path;
+            return result.Replace(':', '-');
         }
 
         // https://docs.microsoft.com/en-us/dotnet/desktop/winforms/advanced/cropping-and-scaling-images-in-gdi?view=netframeworkdesktop-4.8
