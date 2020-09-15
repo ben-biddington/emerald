@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -84,12 +85,16 @@ namespace Emerald.Cli
         {
             var result = text;
 
-            foreach (var invalidFilenameCharacter in Path.GetInvalidFileNameChars())
+            var charactersToReplace = new List<char>();
+            charactersToReplace.AddRange(Path.GetInvalidFileNameChars());
+            charactersToReplace.AddRange(new List<char>{ ':', ' ', '|'});
+
+            foreach (var invalidFilenameCharacter in charactersToReplace)
             {
                 result = result.Replace(invalidFilenameCharacter, '-');
             }
 
-            return result.Replace(':', '-');
+            return result;
         }
 
         // https://docs.microsoft.com/en-us/dotnet/desktop/winforms/advanced/cropping-and-scaling-images-in-gdi?view=netframeworkdesktop-4.8

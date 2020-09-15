@@ -32,6 +32,24 @@ Force container (re)build:
 $ ./run --container --build https://www.rnz.co.nz/
 ```
 
+Run in container agaisnt localhost use `host.docker.internal`:
+
+```shell
+$ ./run --container http://host.docker.internal:8000/
+```
+
+List the screenshots in the container:
+
+```
+$ docker exec emerald sh -c "ls /screenshots"
+```
+
+Download screenshots fom container:
+
+```shell
+$ docker cp emerald:screenshots/ .
+```
+
 <p align="center">
   <img src="https://github.com/ben-biddington/emerald/raw/trunk/doc/https---www.rnz.co.nz--637352439552501962.png">
 </p>
